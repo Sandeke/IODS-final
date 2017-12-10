@@ -12,3 +12,9 @@ output:
     code_folding: hide
 ---
 
+***
+  
+```{r child = "final.Rmd"}
+```
+  
+***
