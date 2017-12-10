@@ -1,0 +1,18 @@
+---
+title: "README"
+author: "Kevin Sandeman"
+date: "10 december 2017"
+output:
+  html_document:
+    theme: yeti
+   
+---
+
+## Something about the final assignment
+
+For the final assignment I have chosen to work with the human data file.
+
+I have enjoyed the course as I have learned everything from R, R Markdown and Github from the beginning. But I would recommend for people without experience of the above mentioned techniques, that they use and plan some more time for the assignments.
+
+Thank you for a great course
+
