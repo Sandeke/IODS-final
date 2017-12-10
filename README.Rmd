@@ -1,0 +1,18 @@
+---
+title: "README"
+author: "Kevin Sandeman"
+date: "10 december 2017"
+output:
+  html_document:
+    theme: yeti
+   
+---
+
+## Something about the final assignment
+
+During the course I had to learn everything from the beginning, as I didn't have any experience with **R**, **R Markdown** or **Github**. I understand now something about all the techniques and enjoy it, while I'm working with them on my own projects.
+
+For the final assignment I have chosen to work with the 'human'-data file, according to the instructions in the last assignment.
+
+Thank you for a great course!
+
