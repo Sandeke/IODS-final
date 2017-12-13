@@ -20,7 +20,7 @@ In this report I aimed to analyze the value of national data from the Human Deve
 The most important predictor for maternal mortality within a nation is life expectancy and lowers the maternal mortality with a factor 13.8, calculated with linear regression. The odds risk for life expectancy is 0.81, determined with logistic regression. Even with linear discriminant analysis life expenctancy shows to be the variable with the most outspoken negative effect on maternal mortality (coefficient -1.6 in LD1 with trace: 0.9). All the models predicted with good accuracy the maternal mortality. Interestingly the cut off value for acceptable mean global maternal mortality overlaps almost perfectly with the analysis performed by k-means, compared with correlation plots.   
 
 
->"Did the WHO use k-means to set a goal for acceptable mean global maternal mortality for the world?"
+>"Did the WHO use k-means to set a goal for acceptable mean maternal mortality for the world?"
 
 #About the final assignment
 
@@ -316,5 +316,5 @@ The linear regression model, logistic regression model and the linear discrimina
 
 The k-means showed the most surprising result, showing almost perfect overlap with the correlation plot, that was made by dividing the groups with a cut off value of 70 maternal deaths out of 100 000 life births stated by the World Health Organisation. With some humor we could ask:   
 
->"Did the WHO use k-means to set a goal for acceptable mean global maternal mortality for the world?"
+>"Did the WHO use k-means to set a goal for acceptable mean maternal mortality for the world?"
 
