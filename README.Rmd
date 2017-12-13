@@ -1,7 +1,7 @@
 ---
 title: "README"
-author: "Kevin Sandeman"
-date: "10 december 2017"
+author: "Kevin Sandeman, e-mail: kevin_sandeman@yahoo.se"
+date: "13 december 2017"
 output:
   html_document:
     theme: yeti
@@ -10,9 +10,14 @@ output:
 
 ## Something about the final assignment
 
-For the final assignment I have chosen to work with the human data file.
 
-I have enjoyed the course as I have learned everything from R, R Markdown and Github from the beginning. But I would recommend for people without experience of the above mentioned techniques, that they use and plan some more time for the assignments.
+I have enjoyed the course as I have learned everything about R, R Markdown and Github from scratch. But I would recommend for people without experience of the above mentioned techniques, that they use and plan some more time for the assignments.
 
-Thank you for a great course
+In this report I aimed to analyze the value of national data from the Human Development Index (HDI) and the Gender Inequality Index (GII) from the United Nations Development Programme in predicting the maternal mortality. For this goal I used regression and clustering models. The data was gathered from the human dataset and prepared and analyzed with RStudio. This report was shaped with R Markdown into an html-file. The material is composed of a dataset, made in 2016, with 155 nations and 8 variables. Mathematical modelling was performed by means of linear regression, logistic regression and linear discriminant analysis. Unsupervised clustering with k-means was included in the report.  
+The most important predictor for maternal mortality within a nation is life expectancy and lowers the maternal mortality with a factor 13.8, calculated with linear regression. The odds risk for life expectancy is 0.81, determined with logistic regression. Even with linear discriminant analysis life expenctancy shows to be the variable with the most outspoken negative effect on maternal mortality (coefficient -1.6 in LD1 with trace: 0.9). All the models predicted with acceptable to good accuracy the maternal mortality. Interestingly the cut off value for acceptable mean global maternal mortality overlaps almost perfectly with the analysis performed by k-means, compared with correlation plots. 
 
+
+My IODS-final GitHub web page is: https://sandeke.github.io/IODS-final/
+
+
+Thank you for a great course!

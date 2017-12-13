@@ -1,13 +1,320 @@
 ---
 title: "IODS-final"
-author: "Kevin Sandeman"
+author:
+- name: "Kevin Sandeman"
+  affiliation: "kevin_sandeman@yahoo.se"
+date: "13 december 2017"
 output:
   html_document:
     theme: yeti
     toc: true
-    toc_depth: 2
+    toc_depth: 4
     fig_caption: true
     fig_width: 6
     fig_height: 4
     code_folding: hide
 ---
+#Abstract
+
+In this report I aimed to analyze the value of national data from the Human Development Index (HDI) and the Gender Inequality Index (GII) from the United Nations Development Programme in predicting the maternal mortality. For this goal I used regression and clustering models. The data was gathered from the human dataset and prepared and analyzed with RStudio. This report was shaped with R Markdown into an html-file. The material is composed of a dataset, made in 2016, with 155 nations and 8 variables. Mathematical modelling was performed by means of linear regression, logistic regression and linear discriminant analysis. Unsupervised clustering with k-means was included in the report.  
+The most important predictor for maternal mortality within a nation is life expectancy and lowers the maternal mortality with a factor 13.8, calculated with linear regression. The odds risk for life expectancy is 0.81, determined with logistic regression. Even with linear discriminant analysis life expenctancy shows to be the variable with the most outspoken negative effect on maternal mortality (coefficient -1.6 in LD1 with trace: 0.9). All the models predicted with good accuracy the maternal mortality. Interestingly the cut off value for acceptable mean global maternal mortality overlaps almost perfectly with the analysis performed by k-means, compared with correlation plots.   
+
+
+>"Did the WHO use k-means to set a goal for acceptable mean global maternal mortality for the world?"
+
+#About the final assignment
+
+For the final assignment I have chosen to work with the human dataset, that originates from the United Nations Development Programme from 2016. The HDI (Human Development Index) was created to show that people and their capabilities should be the ultimate criteria for assessing the development of a country, not economic growth alone. The GII is an gender inequality index, that measures gender inequalities in three important aspects of human development. You can find more information about [HDI](http://hdr.undp.org/en/content/human-development-index-hdi) and [GII](http://hdr.undp.org/en/content/gender-inequality-index-gii) by clicking on them.
+
+Linear regression, logistic regression, LDA analysis and k-means are used to analyze the data. I used the wrangled data set used in chapter 5 from the IODS-course. I would expect and try to show during my analyses that maternal mortality can function as a variable for dividing countries into at least two groups.
+
+#Data wrangling
+
+The data was wrangled, according to the instructions of the course and data wrangling file in R can be found [in this link](https://github.com/Sandeke/IODS-final/blob/master/Data/Create_human.R).
+
+#Description of the dataset
+
+The Human Development Index (HDI) dataset and Gender Inequality Index (GII) dataset from the United Nations Development Programme are combined in this dataset. To this dataset are added two new parameters, that express the proportion between female and male representation in secundary education and on the labour market. I have also added a logical binominal parameter to indicate high maternal mortality with more than 70 deaths / 100000 life births, according to the fact sheet of the goal of acceptable mean global maternal mortality, defined by WHO ([link](http://www.who.int/mediacentre/factsheets/fs348/en/)).
+
+
+In the "human"-data set are now 155 countries with the following 9 variables:
+
+**GNI:** Gross National Income per capita in US dollar. The mean GNI is 17628 US dollar with range 581-123 124.   
+**Life.Exp:** Life expectancy at birth. The mean life expectancy is 71.6 years with range 49-83.5.   
+**Edu.Exp:** Expected years of schooling. The mean schooling expectancy is 13.2 years with range 5.4-20.2.   
+**Mat.Mor:** Maternal mortality ratio per 100 000 life births. The mean maternal mortality is 149.1 with range 1-1100.    
+**Ado.Birth:** Adolescent birth rate. The mean adolescent birth rate is 47.2 with range 0.6-204.8.    
+**Parli.F:** Percetange of female representatives in parliament. The mean percentage of female representation in parliament is 20.9 with range 0-57.5.  
+**Edu2.FM:** Proportion between female and male representation in secundary education. The mean ratio is 0.85 with range 0.17-1.5.  
+**Labo.FM:** Proportion between female and male representation in labour market. The mean ratio is 0.71 with range 0.19-1.04.  
+**H.Mat.Mort:** The binominal variable is "TRUE" or "1", if Maternal mortality > 70 / 100 000 life births in a country. In 87 countries out of 155 the maternal mortality is less than 70 / 100 000 life births.
+
+Variables "Edu2.FM", "Labo.FM", "Life.Exp", "Edu.Exp" and "Parli.F" are parametrical as their mean and median are close to each other. On the other hand, "GNI", "Mat.Mor" and "Ado.Birth" are non-parametric.  
+```{r include=FALSE}
+library(GGally)
+library(ggplot2)
+library(tidyverse)
+library(corrplot)
+library(MASS)
+# Set directory, read and show the structure of the material
+human <- read.csv(file="C:/Users/kevin/Dropbox/IODScourse/IODS-final/Data/human.csv", header = TRUE, row.names = 1)
+```
+
+```{r}
+# convert High.Mat.Mort to factor for visualization, especially in ggpairs.
+human$High.Mat.Mort <- factor(human$High.Mat.Mort)
+#show structure and summary of the dataset
+str(human)
+summary(human)
+```
+
+
+
+
+#Visualization of the dataset
+
+###Distribution of the variables
+
+Below the distributions are plotted and show the same results for the variables as above were mentioned. On top of this can we see that "GNI", "Mat.Mor" and "Ado.Birth" have a right-skewed distribution for the total.
+
+As we also can read the graphic below now, as a dichotomized version for high maternal mortality, we can see that the groups with high (TRUE) and low (FALSE) maternal mortality (>70 maternal deaths / 100 000 life births) differ especially for life expectancy, education expectancy, Gross National Income per capita and adolescence birth.
+
+
+```{r fig.height=7, fig.width=11}
+p <- ggpairs(human, mapping = aes(col = High.Mat.Mort, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+
+###Correlation plot  
+Different ways of visualization of correlation can be seen above as well as below. The values are presented in different visual ways and complement each other in the overview of the dataset.
+
+####High positive correlations  
+
+High positive correlations can be seen between life expectancy, expected years of schooling and GNI, suggesting that better education induces longer lives and better economy in countries (This could also be true vice versa). Also female participation in secundary education has a strong positive correlation with these parameters. 
+
+####High negative correlations  
+
+On the other hand are maternal mortality and adolescent birth rates correlating negatively with life expectancy and expected years of schooling, suggesting that low levels of national education could induce a high amount of adolescent mothers with a high perinatal mortality, inducing a lower life expectancy. Here we can see a strong negative correlation with female participation in secundary education.
+
+```{r}
+
+#visualize parameters and correlations
+cor(human[-9]) %>% corrplot(method = "pie", type = "upper")
+```
+
+#Description of the methods
+
+The following mathematical methods will be implied to the data:  
+
+-**Linear regression** with maternal mortality as the dependent variable. The assumed linear function will describe the relationship between the dependent and the variables. The fitting of the linear function will be checked with diagnostic plots.  
+
+-**Logistic regression** with high maternal mortality as the dependent binominal variable. The model will be fitted, according to the predictions and compared to these to describe the deviance from the actual values.  
+
+-**Linear discriminant analysis** is a method to find a linear combination, defined by linear discriminants, that describe the differences between different countries. The analysis result will be checked with a test group, that was splitted from the training material before the calculations.  
+
+-**K-means clustering** aims to partition the observations into an amount of clusters in which each observation belongs to the cluster with the nearest mean, serving as a prototype of the cluster.  
+
+##Linear regression  
+###Linear modelling  
+
+To make a linear model of the dataset we assume, that there is a linear relationship between the dependent and predictor variables. High maternal mortality was excluded from the linear model as it is directly calculated from maternal mortality.
+
+```{r}
+m1 <- lm(Mat.Mort ~ . -High.Mat.Mort - Parli.F, human)
+summary(m1)
+```
+  
+We can observe that nearly all numerical parameters have a significant or nearly significant relationship to maternal mortality, not taking into account female representation in parliament (that was taken out of the model, because of not being significant). The estimates show the effect of change in a variable value with 1 onto the dependent variable value and the direction of the value change (+/-). On the other hand can we see R-squared that explains 83 % of the variance can be explained by the predictors. The F-statistics value makes it possible to reject the Noll hypothesis ('there is no relationship between dependent and predictors.').  
+
+In the linear regression model the variable with strongest influence upon maternal mortality is life expectancy as it is expressed in years, not as a fraction (such as Edu2.FM and Labo.FM) and has lowers maternal mortality with 13.8 times per unit of rise.
+
+###Test of the linear model
+
+```{r}
+plot(m1, which = c(1:2, 5))
+```
+  
+**Residuals vs Fitted values:** In this plot there is a linear relationship between the predictor variables and the outcome variables, confirming the assumption that there are no non-linear relationships between the parameters in the test and the linear model fits well for this data. Some outliers can be observed in the model. They also explain the non-parametric distribution of the residuals.  
+**Normal Q-Q:** The relationship between the theoretical and standarized quantiles is mainly following a straight line, confirming that the choice for a linear model was the correct one. In the lower left corner there are some outliers observed.  
+**Residuals vs Leverage:** Some outliers could be identified in the residuals vs fitted values, but they do not show high leverage on the observations and the model can be used to discribe the relationship between 'attitude' and 'points'. The outliers in this case can be kept in the model. If they were due to possible registration errors in the data and had a high leverage on the model, they could be removed.  
+
+**Summary of the tests:** the linear model fits predicts well the national maternal mortality.  
+
+##Logistic regression  
+###Logistic modelling  
+
+To make a logistic model, I have provided the data with a binominal parameter "High Maternal Mortality". The variable is "TRUE", if the national maternal mortality is higher than 70 deaths / 100 000 life births.  Maternal mortality was excluded from the logistic model as it has a direct relationship to the dependent. 
+```{r}
+m2 <- glm(High.Mat.Mort ~ .-Mat.Mort, data = human, family = "binomial")
+summary(m2)
+```
+  
+Two parameters, life expectancy and adolescent birth have a significant relationship to the dependent binominal dependent variable (high maternal mortality) in a logistic regression model with all the chosen parameters. Also the logistic model is significant. Life expectancy lowers the high maternal mortality and adolescent birth rate increases it, according to the estimates above. The easiest way to express the effect of the variables upon the maternal mortality is with help of odds risk, as described below.
+
+The deviance residuals of the model is well distributed around null. The value of the null deviance is clearly reduced by the residual deviance, suggesting a worse fit for the predictors than for the intercept. The Fisher scoring iteration is 7, which shows that the model was not to complex to fit.
+
+Now the odds risks will be calculated for the different predictors.  
+
+```{r include=FALSE}
+OR <- coef(m2) %>% exp
+CI <- confint(m2) %>% exp
+```
+
+```{r}
+cbind(OR, CI)
+```
+  
+Adolescent birth rate increases the odds risk for high maternal mortality by 1.04 times as life expectancy lowers the odds risk for high maternal mortality by 0.8.  
+
+###Test of the logistic model  
+
+By plotting and making a table, we are able to see the accuracy of the model.  
+  
+```{r}
+probabilities <- predict(m2, type = "response")
+human <- mutate(human, probability = probabilities)
+human <- mutate(human, prediction = probability > 0.5)
+g <- ggplot(human, aes(x = probability, y = High.Mat.Mort, col = prediction))
+g + geom_point()
+```
+  
+
+```{r}
+table("high maternal mortality" = human$High.Mat.Mort, prediction = human$prediction) %>% prop.table() %>% addmargins
+```
+    
+  
+ The model predicts quite well the high maternal mortality of the countries, classifying only 10 % of the countries wrong for high maternal mortality, respectively 5.8 % false negative and 4.5 % false positive.   
+ 
+
+##Linear discriminant analysis  
+
+To eliminate the effect of different values of the parameters, the parameters are first standarized and the summary is shown in the table below. The maternal mortality risk groups are based upon quantiles of the dataset. Than the material is divided to make testing of the prediction of the model possible by splitting the material in training and testing groups.
+
+```{r}
+
+#To be to scale the human dataset we drop the High.Mat.Mort parameter as well as the prediction and probability parameter from the logistic regression part.
+human$High.Mat.Mort <- NULL
+human$probability <- NULL
+human$prediction <- NULL
+#The data is then scaled for LDA
+human_scaled <- scale(human)
+summary(human_scaled)
+```
+
+```{r}
+human_scaled <- as.data.frame(human_scaled)
+
+# create a quantile vector of crim
+bins <- quantile(human_scaled$Mat.Mort)
+# create a categorical variable 'maternal mortality'
+mortality <- cut(human_scaled$Mat.Mort, breaks = bins,labels = c("low", "med_low", "med_high", "high"), include.lowest = TRUE)
+# remove original Mat.Mort from the dataset
+human_scaled_ <- dplyr::select(human_scaled, -Mat.Mort)
+# add the new categorical value to scaled data(
+human_scaled_ <- data.frame(human_scaled_, mortality)
+# number of rows in the dataset 
+n <- nrow(human_scaled_)
+# choose randomly 80% of the rows
+ind <- sample(n,  size = n * 0.8)
+# create train set
+train <-(human_scaled_[ind,])
+# create test set 
+test <-(human_scaled_[-ind,])
+
+# save the correct classes from test data
+correct_classes <- test$mortality
+
+# linear discriminant analysis
+lda.fit <- lda(mortality ~ ., data = train)
+# print the lda.fit object
+lda.fit
+```
+  
+Above we can see the group means for each variable, followed by the coefficients of linear discriminants, showing that the variable with the strongest effect within the plain of linear discriminant 1 is life expectancy with a negative effect on maternal mortality. On the other hand can we observe that the adolescent birth rate has the opposite effect of life expectancy within the plain of LD1 on the maternal mortality. The coefficients within the plain of LD1 explain 89.7 % of the variance of between the countries for maternal mortality.
+
+```{r fig.height=7, fig.width=11}
+# the function for lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# target classes as numeric
+classes <- train$Mat.Mort
+
+# plot the lda results
+plot(lda.fit , dimen = 2, pch = classes)
+lda.arrows(lda.fit, myscale = 2)
+```
+  
+In the plot we can see the influence of all the different separators within 2 planes of the linear disciminant models. LD1 explains 90 % of the variance between the countries maternal mortality in a model with division of the dataset into quantiles. In this model we can see that life expectancy, together with education expectancy are opposite to adolescent birth rate and influence the maternal mortality negatively in the LD1-plane.
+  
+###Test of the predictive value of the linear discriminant analysis
+
+```{r}
+# predict classes with test data
+lda.pred <- predict(lda.fit, newdata = test)
+
+# cross tabulate the results
+table(correct = correct_classes, predicted = lda.pred$class)
+
+```
+  
+The LDA-model predicts well low mortality for high and low maternal mortality risk groups and makes most prediction mistakes in the low- and medium-high maternal mortality riskgroups.
+
+
+##k-means clustering  
+
+K-means is a common clustering method. It is an unsupervised method, that assigns observations to groups or clusters based on similarity of the objects based upon the distances between the parameters.
+
+Below the summary of the distances of the scaled parameters of the human data set.
+```{r message=TRUE, warning=TRUE}
+# mortality erased from the human_scaled dataset
+human_scaled$mortality <- NULL
+# scaled distance matrix
+dist_scaled <- dist(human_scaled)
+# look at the summary of the distances
+summary(dist_scaled)
+```
+  
+To determine the number of clusters, we need as an argument, we look at how the total of within cluster sum of squares (WCSS) behaves when the number of cluster changes. In the plot below the optimal number of clusters is seen when the total WCSS drops radically, or in this case we use two clusters.
+```{r}
+# determine the number of clusters
+k_max <- 10
+
+# calculate the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(dist_scaled, k)$tot.withinss})
+
+# visualize the results
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+```{r fig.height=7, fig.width=11}
+# k-means clustering
+km <-kmeans(dist_scaled, centers = 2)
+
+# plot the Boston dataset with clusters
+
+km <-kmeans(dist_scaled, centers = 2)
+
+pairs(human_scaled, col = km$cluster)
+
+```
+
+ 
+We can see that the groups divided by k-means clearly differ on the correlation plot above for most of the plots. In this plot we can as an example pick the GNI-column, that shows a tentative positive correlation for GNI with life expectancy and educational expectancy. GNI has a tentative negative correlation to maternal mortality and adolscent birth rate. We can see that the red dotted group is composed out of richer countries as the black dotted group out of poorer countries (developing countries).
+
+#Conclusions and discussion
+
+All the analyses did function and had acceptable results for prediction of maternal mortality and for the binominal parameter, high maternal mortality. The LDA-model was probably the weakest predictive method with some poorer results in the medium high maternal mortality risk group.  
+
+The linear regression model, logistic regression model and the linear discriminant analysis all show that the strongest predictor for high maternal mortality within a country is life expectancy.  
+
+The k-means showed the most surprising result, showing almost perfect overlap with the correlation plot, that was made by dividing the groups with a cut off value of 70 maternal deaths out of 100 000 life births stated by the World Health Organisation. With some humor we could ask:   
+
+>"Did the WHO use k-means to set a goal for acceptable mean global maternal mortality for the world?"
+
