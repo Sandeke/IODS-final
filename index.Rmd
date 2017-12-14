@@ -231,7 +231,7 @@ lda.fit <- lda(mortality ~ ., data = train)
 lda.fit
 ```
   
-Above we can see the group means for each variable, followed by the coefficients of linear discriminants, showing that the variable with the strongest effect within the plain of linear discriminant 1 is life expectancy with a negative effect on maternal mortality. On the other hand can we observe that the adolescent birth rate has the opposite effect of life expectancy within the plain of LD1 on the maternal mortality. The coefficients within the plain of LD1 explain 89.7 % of the variance of between the countries for maternal mortality.
+Above we can see the group means for each variable, followed by the coefficients of linear discriminants, showing that the variable with the strongest effect within the plain of linear discriminant 1 is life expectancy with a negative effect on maternal mortality. On the other hand can we observe that the adolescent birth rate has the opposite effect of life expectancy within the plain of LD1 on the maternal mortality. The coefficients within the plain of LD1 explain about 90 % of the variance of between the countries for maternal mortality.
 
 ```{r fig.height=7, fig.width=11}
 # the function for lda biplot arrows
@@ -252,7 +252,7 @@ plot(lda.fit , dimen = 2, pch = classes)
 lda.arrows(lda.fit, myscale = 2)
 ```
   
-In the plot we can see the influence of all the different separators within 2 planes of the linear disciminant models. LD1 explains 90 % of the variance between the countries maternal mortality in a model with division of the dataset into quantiles. In this model we can see that life expectancy, together with education expectancy are opposite to adolescent birth rate and influence the maternal mortality negatively in the LD1-plane.
+In the plot we can see the influence of all the different separators within 2 planes of the linear disciminant models. LD1 explains about 90 % of the variance between the countries maternal mortality in a model with division of the dataset into quantiles. In this model we can see that life expectancy, together with education expectancy are opposite to adolescent birth rate and influence the maternal mortality negatively in the LD1-plane.
   
 ###Test of the predictive value of the linear discriminant analysis
 
